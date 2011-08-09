@@ -2,14 +2,14 @@
  * jQuery Cycle Plugin (with Transition Definitions)
  * Examples and documentation at: http://jquery.malsup.com/cycle/
  * Copyright (c) 2007-2010 M. Alsup
- * Version: 2.9993 (26-MAY-2011)
+ * Version: 2.9995 (09-AUG-2011)
  * Dual licensed under the MIT and GPL licenses.
  * http://jquery.malsup.com/license.html
  * Requires: jQuery v1.3.2 or later
  */
 ;(function($) {
 
-var ver = '2.9992';
+var ver = '2.9995';
 
 // if $.support is not defined (pre jQuery 1.3) add what I need
 if ($.support == undefined) {
@@ -121,6 +121,7 @@ function handleArguments(cont, options, arg2) {
 			if (cont.cycleTimeout)
 				clearTimeout(cont.cycleTimeout);
 			cont.cycleTimeout = 0;
+			opts.elements && $(opts.elements).stop();
 			$(cont).removeData('cycle.opts');
 			if (options == 'destroy')
 				destroy(opts);
@@ -255,7 +256,7 @@ function buildOptions($cont, $slides, els, options, o) {
 		$cont.height(opts.height);
 
 	if (opts.startingSlide)
-		opts.startingSlide = parseInt(opts.startingSlide);
+		opts.startingSlide = parseInt(opts.startingSlide,10);
 	else if (opts.backwards)
 		opts.startingSlide = els.length - 1;
 
@@ -350,14 +351,16 @@ function buildOptions($cont, $slides, els, options, o) {
 			$cont.css({width:maxw+'px',height:maxh+'px'});
 	}
 
+	var pauseFlag = false;  // https://github.com/malsup/cycle/issues/44
 	if (opts.pause)
 		$cont.hover(
 			function(){
+				pauseFlag = true;
 				this.cyclePause++;
 				triggerPause(cont, true);
 			},
 			function(){
-				this.cyclePause--;
+				pauseFlag && this.cyclePause--;
 				triggerPause(cont, true);
 			}
 		);
@@ -412,10 +415,10 @@ function buildOptions($cont, $slides, els, options, o) {
 	$($slides[first]).css(opts.cssFirst);
 
 	if (opts.timeout) {
-		opts.timeout = parseInt(opts.timeout);
+		opts.timeout = parseInt(opts.timeout,10);
 		// ensure that timeout and speed settings are sane
 		if (opts.speed.constructor == String)
-			opts.speed = $.fx.speeds[opts.speed] || parseInt(opts.speed);
+			opts.speed = $.fx.speeds[opts.speed] || parseInt(opts.speed,10);
 		if (!opts.sync)
 			opts.speed = opts.speed / 2;
 		
@@ -455,11 +458,12 @@ function buildOptions($cont, $slides, els, options, o) {
 
 	// fire artificial events
 	var e0 = $slides[first];
-	if (opts.before.length)
-		opts.before[0].apply(e0, [e0, e0, opts, true]);
-	if (opts.after.length)
-		opts.after[0].apply(e0, [e0, e0, opts, true]);
-
+	if (!opts.skipInitializationCallbacks) {
+		if (opts.before.length)
+			opts.before[0].apply(e0, [e0, e0, opts, true]);
+		if (opts.after.length)
+			opts.after[0].apply(e0, [e0, e0, opts, true]);
+	}
 	if (opts.next)
 		$(opts.next).bind(opts.prevNextEvent,function(){return advance(opts,1)});
 	if (opts.prev)
@@ -823,7 +827,8 @@ $.fn.cycle.createPagerAnchor = function(i, el, $p, els, opts) {
 
 	opts.pagerAnchors =  opts.pagerAnchors || [];
 	opts.pagerAnchors.push($a);
-	$a.bind(opts.pagerEvent, function(e) {
+	
+	var pagerFn = function(e) {
 		e.preventDefault();
 		opts.nextSlide = i;
 		var p = opts.$cont[0], timeout = p.cycleTimeout;
@@ -836,18 +841,28 @@ $.fn.cycle.createPagerAnchor = function(i, el, $p, els, opts) {
 			cb(opts.nextSlide, els[opts.nextSlide]);
 		go(els,opts,1,opts.currSlide < i); // trigger the trans
 //		return false; // <== allow bubble
-	});
+	}
+	
+	if ( /mouseenter|mouseover/i.test(opts.pagerEvent) ) {
+		$a.hover(pagerFn, function(){/* no-op */} );
+	}
+	else {
+		$a.bind(opts.pagerEvent, pagerFn);
+	}
 	
 	if ( ! /^click/.test(opts.pagerEvent) && !opts.allowPagerClickBubble)
 		$a.bind('click.cycle', function(){return false;}); // suppress click
 	
+	var cont = opts.$cont[0];
+	var pauseFlag = false; // https://github.com/malsup/cycle/issues/44
 	if (opts.pauseOnPagerHover) {
 		$a.hover(
 			function() { 
-				opts.$cont[0].cyclePause++; 
+				pauseFlag = true;
+				cont.cyclePause++; 
 				triggerPause(cont,true,true);
 			}, function() { 
-				opts.$cont[0].cyclePause--; 
+				pauseFlag && cont.cyclePause--; 
 				triggerPause(cont,true,true);
 			} 
 		);
@@ -869,7 +884,7 @@ $.fn.cycle.hopsFromLast = function(opts, fwd) {
 function clearTypeFix($slides) {
 	debug('applying clearType background-color hack');
 	function hex(s) {
-		s = parseInt(s).toString(16);
+		s = parseInt(s,10).toString(16);
 		return s.length < 2 ? '0'+s : s;
 	};
 	function getBg(e) {
@@ -975,16 +990,16 @@ $.fn.cycle.defaults = {
 	height:		  'auto', // container height (if the 'fit' option is true, the slides will be set to this height as well)
 	manualTrump:   true,  // causes manual transition to stop an active transition instead of being ignored
 	metaAttr:     'cycle',// data- attribute that holds the option data for the slideshow
-	next:		   null,  // selector for element to use as event trigger for next slide
+	next:		   null,  // element, jQuery object, or jQuery selector string for the element to use as event trigger for next slide
 	nowrap:		   0,	  // true to prevent slideshow from wrapping
 	onPagerEvent:  null,  // callback fn for pager events: function(zeroBasedSlideIndex, slideElement)
 	onPrevNextEvent: null,// callback fn for prev/next events: function(isNext, zeroBasedSlideIndex, slideElement)
-	pager:		   null,  // selector for element to use as pager container
+	pager:		   null,  // element, jQuery object, or jQuery selector string for the element to use as pager container
 	pagerAnchorBuilder: null, // callback fn for building anchor links:  function(index, DOMelement)
 	pagerEvent:	  'click.cycle', // name of event which drives the pager navigation
 	pause:		   0,	  // true to enable "pause on hover"
 	pauseOnPagerHover: 0, // true to pause when hovering over pager link
-	prev:		   null,  // selector for element to use as event trigger for previous slide
+	prev:		   null,  // element, jQuery object, or jQuery selector string for the element to use as event trigger for previous slide
 	prevNextEvent:'click.cycle',// event which drives the manual transition to the previous or next slide
 	random:		   0,	  // true for random, false for sequence (not applicable to shuffle fx)
 	randomizeEffects: 1,  // valid when multiple effects are used; true to make the effect sequence random
@@ -992,6 +1007,7 @@ $.fn.cycle.defaults = {
 	requeueTimeout: 250,  // ms delay for requeue
 	rev:		   0,	  // causes animations to transition in reverse (for effects that support it such as scrollHorz/scrollVert/shuffle)
 	shuffle:	   null,  // coords for shuffle animation, ex: { top:15, left: 200 }
+	skipInitializationCallbacks: false, // set to true to disable the first before/after callback that occurs prior to any transition
 	slideExpr:	   null,  // expression for selecting slides (if something other than all children is required)
 	slideResize:   1,     // force slide width/height to fixed size before every transition
 	speed:		   1000,  // speed of the transition (any valid fx speed value)
@@ -1181,7 +1197,7 @@ $.fn.cycle.transitions.shuffle = function($cont, $slides, opts) {
 			}
 			else {
 				var z = $(curr).css('z-index');
-				$el.css('z-index', parseInt(z)+1+count);
+				$el.css('z-index', parseInt(z,10)+1+count);
 			}
 			$el.animate({left:0, top:0}, opts.speedOut, opts.easeOut, function() {
 				$(fwd ? this : curr).hide();
@@ -1440,8 +1456,8 @@ $.fn.cycle.transitions.wipe = function($cont, $slides, opts) {
 		else if (/b2t/.test(opts.clip))
 			clip = 'rect('+h+'px '+w+'px '+h+'px 0px)';
 		else if (/zoom/.test(opts.clip)) {
-			var top = parseInt(h/2);
-			var left = parseInt(w/2);
+			var top = parseInt(h/2,10);
+			var left = parseInt(w/2,10);
 			clip = 'rect('+top+'px '+left+'px '+top+'px '+left+'px)';
 		}
 	}
@@ -1449,7 +1465,7 @@ $.fn.cycle.transitions.wipe = function($cont, $slides, opts) {
 	opts.cssBefore.clip = opts.cssBefore.clip || clip || 'rect(0px 0px 0px 0px)';
 
 	var d = opts.cssBefore.clip.match(/(\d+)/g);
-	var t = parseInt(d[0]), r = parseInt(d[1]), b = parseInt(d[2]), l = parseInt(d[3]);
+	var t = parseInt(d[0],10), r = parseInt(d[1],10), b = parseInt(d[2],10), l = parseInt(d[3],10);
 
 	opts.before.push(function(curr, next, opts) {
 		if (curr == next) return;
@@ -1457,12 +1473,12 @@ $.fn.cycle.transitions.wipe = function($cont, $slides, opts) {
 		$.fn.cycle.commonReset(curr,next,opts,true,true,false);
 		opts.cssAfter.display = 'block';
 
-		var step = 1, count = parseInt((opts.speedIn / 13)) - 1;
+		var step = 1, count = parseInt((opts.speedIn / 13),10) - 1;
 		(function f() {
-			var tt = t ? t - parseInt(step * (t/count)) : 0;
-			var ll = l ? l - parseInt(step * (l/count)) : 0;
-			var bb = b < h ? b + parseInt(step * ((h-b)/count || 1)) : h;
-			var rr = r < w ? r + parseInt(step * ((w-r)/count || 1)) : w;
+			var tt = t ? t - parseInt(step * (t/count),10) : 0;
+			var ll = l ? l - parseInt(step * (l/count),10) : 0;
+			var bb = b < h ? b + parseInt(step * ((h-b)/count || 1),10) : h;
+			var rr = r < w ? r + parseInt(step * ((w-r)/count || 1),10) : w;
 			$next.css({ clip: 'rect('+tt+'px '+rr+'px '+bb+'px '+ll+'px)' });
 			(step++ <= count) ? setTimeout(f, 13) : $curr.css('display', 'none');
 		})();
