@@ -1,6 +1,6 @@
 /*!
  * jQuery Form Plugin
- * version: 2.84 (12-AUG-2011)
+ * version: 2.85 (23-SEP-2011)
  * @requires jQuery v1.3.2 or later
  *
  * Examples and documentation at: http://malsup.com/jquery/form/
@@ -173,7 +173,7 @@ $.fn.ajaxSubmit = function(options) {
    }
    else {
 		// IE7 massage (see issue 57)
-		if ($.browser.msie && method == 'get') { 
+		if ($.browser.msie && method == 'get' && typeof options.type === "undefined") {
 			var ieMeth = $form[0].getAttribute('method');
 			if (typeof ieMeth === 'string')
 				options.type = ieMeth;
@@ -192,11 +192,18 @@ $.fn.ajaxSubmit = function(options) {
         var useProp = !!$.fn.prop;
 
         if (a) {
-        	// ensure that every serialized input is still enabled
-          	for (i=0; i < a.length; i++) {
-                el = $(form[a[i].name]);
-                el[ useProp ? 'prop' : 'attr' ]('disabled', false);
-          	}
+            if ( useProp ) {
+            	// ensure that every serialized input is still enabled
+              	for (i=0; i < a.length; i++) {
+                    el = $(form[a[i].name]);
+                    el.prop('disabled', false);
+              	}
+            } else {
+              	for (i=0; i < a.length; i++) {
+                    el = $(form[a[i].name]);
+                    el.removeAttr('disabled');
+              	}
+            };
         }
 
 		if ($(':input[name=submit],:input[id=submit]', form).length) {
@@ -433,8 +440,8 @@ $.fn.ajaxSubmit = function(options) {
                     xhr.statusText = docRoot.getAttribute('statusText') || xhr.statusText;
                 }
 
-				var dt = s.dataType || '';
-				var scr = /(json|script|text)/.test(dt.toLowerCase());
+				var dt = (s.dataType || '').toLowerCase();
+				var scr = /(json|script|text)/.test(dt);
 				if (scr || s.textarea) {
 					// see if user embedded response in textarea
 					var ta = doc.getElementsByTagName('textarea')[0];
@@ -449,19 +456,19 @@ $.fn.ajaxSubmit = function(options) {
 						var pre = doc.getElementsByTagName('pre')[0];
 						var b = doc.getElementsByTagName('body')[0];
 						if (pre) {
-							xhr.responseText = pre.textContent ? pre.textContent : pre.innerHTML;
+							xhr.responseText = pre.textContent ? pre.textContent : pre.innerText;
 						}
 						else if (b) {
-							xhr.responseText = b.innerHTML;
+							xhr.responseText = b.textContent ? b.textContent : b.innerText;
 						}
 					}
 				}
-				else if (s.dataType == 'xml' && !xhr.responseXML && xhr.responseText != null) {
+				else if (dt == 'xml' && !xhr.responseXML && xhr.responseText != null) {
 					xhr.responseXML = toXml(xhr.responseText);
 				}
 
                 try {
-                    data = httpData(xhr, s.dataType, s);
+                    data = httpData(xhr, dt, s);
                 }
                 catch (e) {
                     status = 'parsererror';
@@ -897,8 +904,13 @@ $.fn.selected = function(select) {
 	});
 };
 
+// expose debug var
+$.fn.ajaxSubmit.debug = false;
+
 // helper fn for console logging
 function log() {
+	if (!$.fn.ajaxSubmit.debug) 
+		return;
 	var msg = '[jquery.form] ' + Array.prototype.join.call(arguments,'');
 	if (window.console && window.console.log) {
 		window.console.log(msg);
