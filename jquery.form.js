@@ -1,6 +1,6 @@
 /*!
  * jQuery Form Plugin
- * version: 2.96 (16-FEB-2012)
+ * version: 2.97 (05-MAR-2012)
  * @requires jQuery v1.3.2 or later
  *
  * Examples and documentation at: http://malsup.com/jquery/form/
@@ -46,6 +46,13 @@
 	When using ajaxForm, the ajaxSubmit function will be invoked for you
 	at the appropriate time.
 */
+
+/**
+ * Feature detection
+ */
+var feature = {};
+feature.fileapi = $("<input type='file'/>").get(0).files !== undefined;
+feature.formdata = window.FormData !== undefined;
 
 /**
  * ajaxSubmit() provides a mechanism for immediately submitting
@@ -164,7 +171,7 @@ $.fn.ajaxSubmit = function(options) {
 	var mp = 'multipart/form-data';
 	var multipart = ($form.attr('enctype') == mp || $form.attr('encoding') == mp);
 
-	var fileAPI = !!(hasFileInputs && fileInputs.get(0).files && window.FormData);
+	var fileAPI = feature.fileapi && feature.formdata;
 	log("fileAPI :" + fileAPI);
 	var shouldUseFrame = (hasFileInputs || multipart) && !fileAPI;
 
@@ -199,18 +206,8 @@ $.fn.ajaxSubmit = function(options) {
 		var formdata = new FormData();
 
 		for (var i=0; i < a.length; i++) {
-			if (a[i].type == 'file')
-				continue;
 			formdata.append(a[i].name, a[i].value);
 		}
-
-		$form.find('input:file:enabled').each(function(){
-			var name = $(this).attr('name'), files = this.files;
-			if (name) {
-				for (var i=0; i < files.length; i++)
-					formdata.append(name, files[i]);
-			}
-		});
 
 		if (options.extraData) {
 			for (var k in options.extraData)
@@ -763,6 +760,12 @@ $.fn.formToArray = function(semantic) {
 		if (v && v.constructor == Array) {
 			for(j=0, jmax=v.length; j < jmax; j++) {
 				a.push({name: n, value: v[j]});
+			}
+		}
+		else if (feature.fileapi && el.type == 'file' && !el.disabled) {
+			var files = el.files;
+			for (j=0; j < files.length; j++) {
+				a.push({name: n, value: files[j], type: el.type});
 			}
 		}
 		else if (v !== null && typeof v != 'undefined') {
