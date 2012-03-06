@@ -2,7 +2,7 @@
  * jQuery Cycle Lite Plugin
  * http://malsup.com/jquery/cycle/lite/
  * Copyright (c) 2008-2012 M. Alsup
- * Version: 1.4 (01-MAR-2012)
+ * Version: 1.5 (05-MAR-2012)
  * Dual licensed under the MIT and GPL licenses:
  * http://www.opensource.org/licenses/mit-license.php
  * http://www.gnu.org/licenses/gpl.html
@@ -10,13 +10,14 @@
  */
 ;(function($) {
 
-var ver = 'Lite-1.4';
+var ver = 'Lite-1.5';
 
 $.fn.cycle = function(options) {
     return this.each(function() {
         options = options || {};
         
         if (this.cycleTimeout) clearTimeout(this.cycleTimeout);
+
         this.cycleTimeout = 0;
         this.cyclePause = 0;
         
@@ -52,7 +53,7 @@ $.fn.cycle = function(options) {
             $cont.height(opts.height);
 
         var first = 0;
-        $slides.css({position: 'absolute', top:0, left:0}).each(function(i) { 
+        $slides.css({position: 'absolute', top:0}).each(function(i) {
             $(this).css('z-index', els.length-i) 
         });
         
@@ -138,8 +139,10 @@ function go(els, opts, manual, fwd) {
         var roll = (opts.nextSlide + 1) == els.length;
         opts.nextSlide = roll ? 0 : opts.nextSlide+1;
         opts.currSlide = roll ? els.length-1 : opts.nextSlide-1;
+    } else {
+      queueNext();
     }
-    
+
     function queueNext() {
         if (opts.timeout)
             p.cycleTimeout = setTimeout(function() { go(els,opts,0,!opts.rev) }, opts.timeout);
