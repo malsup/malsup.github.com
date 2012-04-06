@@ -1,6 +1,6 @@
 /*!
  * jQuery Form Plugin
- * version: 3.04 (03-APR-2012)
+ * version: 3.07 (06-APR-2012)
  * @requires jQuery v1.3.2 or later
  *
  * Examples and documentation at: http://malsup.com/jquery/form/
@@ -232,7 +232,7 @@ $.fn.ajaxSubmit = function(options) {
             cache: false,
             type: 'POST'
         });
-
+        
         if (options.uploadProgress) {
             // workaround because jqXHR does not expose upload property
             s.xhr = function() {
@@ -240,19 +240,22 @@ $.fn.ajaxSubmit = function(options) {
                 if (xhr.upload) {
                     xhr.upload.onprogress = function(event) {
                         var percent = 0;
-                        if (event.lengthComputable)
-                            percent = parseInt((event.position / event.total) * 100, 10);
-                        options.uploadProgress(event, event.position, event.total, percent);
-                    };
+                        var position = event.loaded || event.position; /*event.position is deprecated*/
+                        var total = event.total;
+                        if (event.lengthComputable) {
+                            percent = Math.ceil(position / total * 100);
+                        }
+                        options.uploadProgress(event, position, total, percent);
+                    }
                 }
                 return xhr;
-            };
+            }
         }
 
-        s.data = null;
-        var beforeSend = s.beforeSend;
-        s.beforeSend = function(xhr, o) {
-            o.data = formdata;
+      	s.data = null;
+      	var beforeSend = s.beforeSend;
+      	s.beforeSend = function(xhr, o) {
+          	o.data = formdata;
             if(beforeSend)
                 beforeSend.call(o, xhr, options);
         };
@@ -812,7 +815,7 @@ $.fn.formToArray = function(semantic, elements) {
         else if (v !== null && typeof v != 'undefined') {
             if (elements) 
                 elements.push(el);
-            a.push({name: n, value: v, type: el.type});
+            a.push({name: n, value: v, type: el.type, required: el.required});
         }
     }
 
@@ -978,7 +981,7 @@ $.fn.clearFields = $.fn.clearInputs = function(includeHidden) {
     var re = /^(?:color|date|datetime|email|month|number|password|range|search|tel|text|time|url|week)$/i; // 'hidden' is not in this list
     return this.each(function() {
         var t = this.type, tag = this.tagName.toLowerCase();
-        if (re.test(t) || tag == 'textarea' || (includeHidden && /hidden/.test(t)) ) {
+        if (re.test(t) || tag == 'textarea') {
             this.value = '';
         }
         else if (t == 'checkbox' || t == 'radio') {
@@ -986,6 +989,15 @@ $.fn.clearFields = $.fn.clearInputs = function(includeHidden) {
         }
         else if (tag == 'select') {
             this.selectedIndex = -1;
+        }
+        else if (includeHidden) {
+            // includeHidden can be the valud true, or it can be a selector string
+            // indicating a special test; for example:
+            //  $('#myForm').clearForm('.special:hidden')
+            // the above would clean hidden inputs that have the class of 'special'
+            if ( (includeHidden === true && /hidden/.test(t)) ||
+                 (typeof includeHidden == 'string' && $(this).is(includeHidden)) )
+                this.value = '';
         }
     });
 };
