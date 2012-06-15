@@ -1,0 +1,3 @@
+# SM 15Jun12: Ignore eclipse project files
+.project
+.settings
