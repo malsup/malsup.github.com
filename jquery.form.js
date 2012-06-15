@@ -1,13 +1,16 @@
-/*!
+/*
  * jQuery Form Plugin
  * version: 3.09 (16-APR-2012)
  * @requires jQuery v1.3.2 or later
- *
+ * 
  * Examples and documentation at: http://malsup.com/jquery/form/
  * Project repository: https://github.com/malsup/form
  * Dual licensed under the MIT and GPL licenses:
  *    http://malsup.github.com/mit-license.txt
  *    http://malsup.github.com/gpl-license-v2.txt
+ *    
+ * SM 15Jun12: Modified doAjaxSubmit() to support data-ajaxForm-bypass on the clicked element, to skip XHR entirely.
+ *    
  */
 /*global ActiveXObject alert */
 ;(function($) {
@@ -710,13 +713,17 @@ $.fn.ajaxForm = function(options) {
 };
 
 // private event handlers    
+// SM 15Jun12: Modified to allow us to bypass an ajaxform submit on a given button click.
 function doAjaxSubmit(e) {
     /*jshint validthis:true */
     var options = e.data;
-    if (!e.isDefaultPrevented()) { // if event has been canceled, don't proceed
+    var bypassAjaxSubmit = $(this.clk).attr('data-ajaxForm-bypass') == 'true' ? true : false;
+    // if event has been canceled, don't proceed
+    if (!e.isDefaultPrevented() && !bypassAjaxSubmit) { 
         e.preventDefault();
         $(this).ajaxSubmit(options);
     }
+    return true;
 }
     
 function captureSubmittingElement(e) {
