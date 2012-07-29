@@ -1,6 +1,6 @@
 ﻿/*!
  * jQuery blockUI plugin
- * Version 2.42 (11-MAY-2012)
+ * Version 2.43 (29-JUL-2012)
  * @requires jQuery v1.2.3 or later
  *
  * Examples at: http://malsup.com/jquery/block/
@@ -252,16 +252,20 @@
 
 			var lyr3, s;
 			if (opts.theme && full) {
-				s = '<div class="blockUI ' + opts.blockMsgClass + ' blockPage ui-dialog ui-widget ui-corner-all" style="z-index:'+(z+10)+';display:none;position:fixed">' +
-						'<div class="ui-widget-header ui-dialog-titlebar ui-corner-all blockTitle">'+(opts.title || '&nbsp;')+'</div>' +
-						'<div class="ui-widget-content ui-dialog-content"></div>' +
-					'</div>';
+				s = '<div class="blockUI ' + opts.blockMsgClass + ' blockPage ui-dialog ui-widget ui-corner-all" style="z-index:'+(z+10)+';display:none;position:fixed">';
+	        	if ( opts.title ) {
+					s += '<div class="ui-widget-header ui-dialog-titlebar ui-corner-all blockTitle">'+(opts.title || '&nbsp;')+'</div>';
+	        	}
+		        s += '<div class="ui-widget-content ui-dialog-content"></div>';
+				s += '</div>';
 			}
 			else if (opts.theme) {
-				s = '<div class="blockUI ' + opts.blockMsgClass + ' blockElement ui-dialog ui-widget ui-corner-all" style="z-index:'+(z+10)+';display:none;position:absolute">' +
-						'<div class="ui-widget-header ui-dialog-titlebar ui-corner-all blockTitle">'+(opts.title || '&nbsp;')+'</div>' +
-						'<div class="ui-widget-content ui-dialog-content"></div>' +
-					'</div>';
+				s = '<div class="blockUI ' + opts.blockMsgClass + ' blockElement ui-dialog ui-widget ui-corner-all" style="z-index:'+(z+10)+';display:none;position:absolute">';
+        		if ( opts.title ) {
+          			s += '<div class="ui-widget-header ui-dialog-titlebar ui-corner-all blockTitle">'+(opts.title || '&nbsp;')+'</div>'
+        		}  
+        		s += '<div class="ui-widget-content ui-dialog-content"></div>';
+				s += '</div>';
 			}
 			else if (full) {
 				s = '<div class="blockUI ' + opts.blockMsgClass + ' blockPage" style="z-index:'+(z+10)+';display:none;position:fixed"></div>';
