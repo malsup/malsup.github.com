@@ -820,7 +820,7 @@ $(document).on('click.cycle', '[data-cycle-cmd]', function(e) {
 
 })(jQuery);
 
-/*! hash plugin for Cycle2;  version: BETA-20120910 */
+/*! hash plugin for Cycle2;  version: BETA-20121002 */
 (function($) {
 "use strict";
 
@@ -835,8 +835,10 @@ $(document).on( 'cycle-pre-initialize', function( e, opts ) {
 });
 
 $(document).on( 'cycle-update-view', function( e, opts, slideOpts ) {
-    if ( slideOpts.hash )
+    if ( slideOpts.hash ) {
+        opts._hashFence = true;
         window.location.hash = slideOpts.hash;
+    }
 });
 
 $(document).on( 'cycle-destroyed', function( e, opts) {
@@ -846,7 +848,13 @@ $(document).on( 'cycle-destroyed', function( e, opts) {
 });
 
 function onHashChange( opts, setStartingSlide ) {
-    var hash = window.location.hash.substring(1);
+    var hash;
+    if ( opts._hashFence ) {
+        opts._hashFence = false;
+        return;
+    }
+    
+    hash = window.location.hash.substring(1);
 
     opts.slides.each(function(i) {
         if ( $(this).data( 'cycle-hash' ) === hash ) {
