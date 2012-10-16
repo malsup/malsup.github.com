@@ -651,7 +651,7 @@ $(document).on( 'cycle-destroyed', function( e, opts ) {
 
 })(jQuery);
 
-/*! command plugin for Cycle2;  version: BETA-20120923 */
+/*! command plugin for Cycle2;  version: BETA-20121016 */
 (function($) {
 "use strict";
 
@@ -729,6 +729,7 @@ $.extend( c2.API, {
 
     jump: function( index ) {
         // go to the requested slide
+        var fwd;
         var opts = this.opts();
         var num = parseInt( index, 10 );
         if (isNaN(num) || num < 0 || num >= opts.slides.length) {
@@ -743,7 +744,8 @@ $.extend( c2.API, {
         clearTimeout(opts.timeoutId);
         opts.timeoutId = 0;
         opts.API.log('goto: ', num, ' (zero-index)');
-        opts.API.prepareTx( true, !opts.reverse );
+        fwd = opts.currSlide < opts.nextSlide;
+        opts.API.prepareTx( true, fwd );
     },
 
     stop: function() {
@@ -1049,7 +1051,7 @@ function page( pager, target ) {
 })(jQuery);
 
 
-/*! prevnext plugin for Cycle2;  version: BETA-20120910 */
+/*! prevnext plugin for Cycle2;  version: BETA-20121011 */
 (function($) {
 "use strict";
 
@@ -1074,10 +1076,12 @@ $(document).on( 'cycle-initialized', function( e, opts ) {
     });
 
     if ( opts.swipe ) {
-        opts.container.on( 'swipeleft.cycle', function() {
+        var nextEvent = opts.swipeVert ? 'swipeUp.cycle' : 'swipeLeft.cycle swipeleft.cycle';
+        var prevEvent = opts.swipeVert ? 'swipeDown.cycle' : 'swipeRight.cycle swiperight.cycle';
+        opts.container.on( nextEvent, function(e) {
             opts.API.next();
         });
-        opts.container.on( 'swiperight.cycle', function() {
+        opts.container.on( prevEvent, function() {
             opts.API.prev();
         });
     }
