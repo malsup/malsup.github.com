@@ -1051,7 +1051,7 @@ function page( pager, target ) {
 })(jQuery);
 
 
-/*! prevnext plugin for Cycle2;  version: BETA-20121011 */
+/*! prevnext plugin for Cycle2;  version: BETA-20121016 */
 (function($) {
 "use strict";
 
@@ -1112,7 +1112,7 @@ $(document).on( 'cycle-update-view', function( e, opts, slideOpts, currSlide ) {
 $(document).on( 'cycle-destroyed', function( e, opts ) {
     $( opts.next ).off( opts.nextEvent );
     $( opts.prev ).off( opts.prevEvent );
-    opts.container.off( 'swipeleft.cycle swiperight.cycle' );
+    opts.container.off( 'swipeleft.cycle swiperight.cycle swipeLeft.cycle swipeRight.cycle swipeUp.cycle swipeDown.cycle' );
 });
 
 })(jQuery);
