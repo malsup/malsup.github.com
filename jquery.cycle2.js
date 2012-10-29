@@ -1235,14 +1235,19 @@ $(document).on( 'cycle-pre-initialize', function( e, opts ) {
 
 })(jQuery);
 
-/*! tmpl plugin for Cycle2;  version: BETA-20120910 */
+/*! tmpl plugin for Cycle2;  version: BETA-20121029 */
 (function($) {
 "use strict";
 
+$.extend($.fn.cycle.defaults, {
+    tmplRegex: '{{((.)?.*?)}}'
+});
+
 $.extend($.fn.cycle.API, {
     tmpl: function( str, opts, extra ) {
+        var regex = new RegExp( opts.tmplRegex, 'g' );
         if (str && opts) {
-            return str.replace(/\{\{((\.)?.*?)\}\}/g, function(_, str) {
+            return str.replace(regex, function(_, str) {
                 var i, prop, obj = opts, names = str.split('.');
                 if (names.length > 1) {
                    prop = opts;
