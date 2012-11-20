@@ -867,7 +867,7 @@ function onHashChange( opts, setStartingSlide ) {
     hash = window.location.hash.substring(1);
 
     opts.slides.each(function(i) {
-        if ( $(this).data( 'cycle-hash' ) === hash ) {
+        if ( $(this).data( 'cycle-hash' ) == hash ) {
             if ( setStartingSlide === true ) {
                 opts.startingSlide = i;
             }

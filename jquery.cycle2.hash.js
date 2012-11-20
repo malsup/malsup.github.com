@@ -1,4 +1,4 @@
-/*! hash plugin for Cycle2;  version: BETA-20121002 */
+/*! hash plugin for Cycle2;  version: BETA-20121119 */
 (function($) {
 "use strict";
 
@@ -35,7 +35,7 @@ function onHashChange( opts, setStartingSlide ) {
     hash = window.location.hash.substring(1);
 
     opts.slides.each(function(i) {
-        if ( $(this).data( 'cycle-hash' ) === hash ) {
+        if ( $(this).data( 'cycle-hash' ) == hash ) {
             if ( setStartingSlide === true ) {
                 opts.startingSlide = i;
             }
