@@ -1,5 +1,5 @@
 /*!
- * jQuery Cycle2 - Version: BETA-20121030
+ * jQuery Cycle2 - Version: 20121120
  * http://malsup.com/jquery/cycle2/
  * Copyright (c) 2012 M. Alsup; Dual licensed: MIT/GPL
  * Requires: jQuery v1.7 or later
@@ -7,7 +7,7 @@
 ;(function($) {
 "use strict";
 
-var version = 'BETA-20121030';
+var version = '20121120';
 
 $.fn.cycle = function( options ) {
     // fix mistakes with the ready state
@@ -576,7 +576,7 @@ $(document).ready(function() {
 
 })(jQuery);
 
-/*! Cycle2 autoheight plugin; Copyright (c) M.Alsup, 2012; version: BETA-20120910 */
+/*! Cycle2 autoheight plugin; Copyright (c) M.Alsup, 2012; version: 20121120 */
 (function($) {
 "use strict";
 
@@ -635,7 +635,7 @@ $(document).on( 'cycle-destroyed', function( e, opts ) {
 
 })(jQuery);
 
-/*! caption plugin for Cycle2;  version: BETA-20121119 */
+/*! caption plugin for Cycle2;  version: 20121120 */
 (function($) {
 "use strict";
 
@@ -675,7 +675,7 @@ $(document).on( 'cycle-destroyed', function( e, opts ) {
 
 })(jQuery);
 
-/*! command plugin for Cycle2;  version: BETA-20121028 */
+/*! command plugin for Cycle2;  version: 20121120 */
 (function($) {
 "use strict";
 
@@ -846,7 +846,7 @@ $(document).on('click.cycle', '[data-cycle-cmd]', function(e) {
 
 })(jQuery);
 
-/*! hash plugin for Cycle2;  version: BETA-20121119 */
+/*! hash plugin for Cycle2;  version: 20121120 */
 (function($) {
 "use strict";
 
@@ -898,7 +898,7 @@ function onHashChange( opts, setStartingSlide ) {
 
 })(jQuery);
 
-/*! loader plugin for Cycle2;  version: BETA-20120911 */
+/*! loader plugin for Cycle2;  version: 20121120 */
 (function($) {
 "use strict";
 
@@ -986,7 +986,7 @@ $(document).on( 'cycle-bootstrap', function( e, opts ) {
 
 })(jQuery);
 
-/*! pager plugin for Cycle2;  version: BETA-20121029 */
+/*! pager plugin for Cycle2;  version: 20121120 */
 (function($) {
 "use strict";
 
@@ -1075,7 +1075,7 @@ function page( pager, target ) {
 })(jQuery);
 
 
-/*! prevnext plugin for Cycle2;  version: BETA-20121016 */
+/*! prevnext plugin for Cycle2;  version: 20121120 */
 (function($) {
 "use strict";
 
@@ -1141,7 +1141,7 @@ $(document).on( 'cycle-destroyed', function( e, opts ) {
 
 })(jQuery);
 
-/*! progressive loader plugin for Cycle2;  version: BETA-20120910 */
+/*! progressive loader plugin for Cycle2;  version: 20121120 */
 (function($) {
 "use strict";
 
@@ -1259,7 +1259,7 @@ $(document).on( 'cycle-pre-initialize', function( e, opts ) {
 
 })(jQuery);
 
-/*! tmpl plugin for Cycle2;  version: BETA-20121029 */
+/*! tmpl plugin for Cycle2;  version: 20121120 */
 (function($) {
 "use strict";
 
