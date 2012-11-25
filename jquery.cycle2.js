@@ -1,5 +1,5 @@
 /*!
- * jQuery Cycle2 - Version: 20121120
+ * jQuery Cycle2 - Version: 20121125
  * http://malsup.com/jquery/cycle2/
  * Copyright (c) 2012 M. Alsup; Dual licensed: MIT/GPL
  * Requires: jQuery v1.7 or later
@@ -7,7 +7,7 @@
 ;(function($) {
 "use strict";
 
-var version = '20121120';
+var version = '20121125';
 
 $.fn.cycle = function( options ) {
     // fix mistakes with the ready state
@@ -282,13 +282,20 @@ $.fn.cycle.API = {
             if ( tx.before )
                 tx.before( slideOpts, curr, next, fwd );
 
+            if ( opts.updateView === 0 && slideOpts.speed ) {
+                setTimeout ( function() {
+                    opts.API.updateView();
+                }, slideOpts.speed / 2);
+            }
+
             after = function() {
                 opts.busy = false;
                 if (tx.after)
                     tx.after( slideOpts, curr, next, fwd );
                 opts.API.trigger('cycle-after', [ slideOpts, curr, next, fwd ]);
                 opts.API.queueTransition( slideOpts);
-                opts.API.updateView();
+                if ( opts.updateView > 0 )
+                    opts.API.updateView();
             };
 
             opts.busy = true;
@@ -298,6 +305,9 @@ $.fn.cycle.API = {
                 opts.API.doTransition( slideOpts, curr, next, fwd, after);
 
             opts.API.calcNextSlide();
+
+            if ( opts.updateView < 0 )
+                opts.API.updateView();
         } else {
             opts.API.queueTransition( slideOpts );
         }
@@ -566,7 +576,8 @@ $.fn.cycle.defaults = {
     speed:            500,
     startingSlide:    0,
     sync:             true,
-    timeout:          4000
+    timeout:          4000,
+    updateView:       -1
 };
 
 // automatically find and run slideshows
@@ -635,7 +646,7 @@ $(document).on( 'cycle-destroyed', function( e, opts ) {
 
 })(jQuery);
 
-/*! caption plugin for Cycle2;  version: 20121120 */
+/*! caption plugin for Cycle2;  version: 20121125 */
 (function($) {
 "use strict";
 
@@ -653,7 +664,7 @@ $(document).on( 'cycle-update-view', function( e, opts, slideOpts, currSlide ) {
         var template = slideOpts[name+'Template'];
         var el = opts.API.getComponent( name );
         if( el.length && template ) {
-            el.html( opts.API.tmpl( template, slideOpts, currSlide ) );
+            el.html( opts.API.tmpl( template, slideOpts, opts, currSlide ) );
             el.show();
         }
         else {
@@ -986,7 +997,7 @@ $(document).on( 'cycle-bootstrap', function( e, opts ) {
 
 })(jQuery);
 
-/*! pager plugin for Cycle2;  version: 20121120 */
+/*! pager plugin for Cycle2;  version: 20121125 */
 (function($) {
 "use strict";
 
@@ -1045,7 +1056,7 @@ function buildPagerLink( opts, slideOpts, slide ) {
     pagers.each(function() {
         var pager = $(this);
         if ( slideOpts.pagerTemplate ) {
-            var markup = opts.API.tmpl( slideOpts.pagerTemplate, slideOpts, slide[0] );
+            var markup = opts.API.tmpl( slideOpts.pagerTemplate, slideOpts, opts, slide[0] );
             pagerLink = $( markup ).appendTo( pager );
         }
         else {
@@ -1259,7 +1270,7 @@ $(document).on( 'cycle-pre-initialize', function( e, opts ) {
 
 })(jQuery);
 
-/*! tmpl plugin for Cycle2;  version: 20121120 */
+/*! tmpl plugin for Cycle2;  version: 20121125 */
 (function($) {
 "use strict";
 
@@ -1268,30 +1279,31 @@ $.extend($.fn.cycle.defaults, {
 });
 
 $.extend($.fn.cycle.API, {
-    tmpl: function( str, opts, extra ) {
-        var regex = new RegExp( opts.tmplRegex, 'g' );
-        if (str && opts) {
-            return str.replace(regex, function(_, str) {
-                var i, prop, obj = opts, names = str.split('.');
+    tmpl: function( str, opts /*, ... */) {
+        var regex = new RegExp( opts.tmplRegex || $.fn.cycle.defaults.tmplRegex, 'g' );
+        var args = $.makeArray( arguments );
+        args.shift();
+        return str.replace(regex, function(_, str) {
+            var i, j, obj, prop, names = str.split('.');
+            for (i=0; i < args.length; i++) {
+                obj = args[i];
                 if (names.length > 1) {
-                   prop = opts;
-                   for (i=0; i < names.length; i++) {
-                      obj = prop;
-                      prop = prop[ names[i] ] || str;
-                   }
+                    prop = obj;
+                    for (j=0; j < names.length; j++) {
+                        obj = prop;
+                        prop = prop[ names[j] ] || str;
+                    }
                 } else {
-                    prop = opts[str];
+                    prop = obj[str];
                 }
 
                 if ($.isFunction(prop))
-                   return prop.call(obj, opts);
-                if (prop !== undefined && prop !== null)
+                    return prop.apply(obj, args);
+                if (prop !== undefined && prop !== null && prop != str)
                     return prop;
-                if (extra && extra[ str ] !== undefined)
-                    return extra[ str ];
-                return str;
-            });
-        }
+            }
+            return str;
+        });
     }
 });    
 
