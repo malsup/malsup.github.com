@@ -1,5 +1,5 @@
 /*!
- * jQuery Cycle2 - Version: 20121125.2
+ * jQuery Cycle2 - Version: 20121214
  * http://malsup.com/jquery/cycle2/
  * Copyright (c) 2012 M. Alsup; Dual licensed: MIT/GPL
  * Requires: jQuery v1.7 or later
@@ -7,7 +7,7 @@
 ;(function($) {
 "use strict";
 
-var version = '20121125.2';
+var version = '20121214';
 
 $.fn.cycle = function( options ) {
     // fix mistakes with the ready state
@@ -541,7 +541,7 @@ $.fn.cycle.transitions = {
             opts.API.stackSlides( curr, next, fwd );
             var w = opts.container.css('overflow','hidden').width();
             opts.cssBefore = { left: fwd ? w : - w, top: 0, opacity: 1, display: 'block' };
-            opts.cssAfter = { zIndex: opts._maxZ - 2 };
+            opts.cssAfter = { zIndex: opts._maxZ - 2, left: 0 };
             opts.animIn = { left: 0 };
             opts.animOut = { left: fwd ? -w : w };
         }
@@ -580,7 +580,7 @@ $(document).ready(function() {
 
 })(jQuery);
 
-/*! Cycle2 autoheight plugin; Copyright (c) M.Alsup, 2012; version: 20121204 */
+/*! Cycle2 autoheight plugin; Copyright (c) M.Alsup, 2012; version: 20121213 */
 (function($) {
 "use strict";
 
@@ -619,6 +619,7 @@ $(document).on( 'cycle-initialized', function( e, opts ) {
             visibility: 'hidden',
             display: 'block'
         }).prependTo( opts.container ).removeClass().addClass('cycle-sentinel cycle-slide');
+        clone.find( '*' ).css( 'visibility', 'hidden' );
 
         opts._sentinel = clone;
     }
