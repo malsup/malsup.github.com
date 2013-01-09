@@ -1,4 +1,4 @@
-/*! carousel transition plugin for Cycle2;  version: 20121206 */
+/*! carousel transition plugin for Cycle2;  version: 20130108 */
 (function($) {
 "use strict";
 
@@ -76,6 +76,9 @@ $.fn.cycle.transitions.carousel = {
             opts.slides.slice(0, opts.slideCount).clone().css( slideCSS ).prependTo( wrap );
             if ( opts.carouselVisible === undefined )
                 opts.slides.slice(0, opts.slideCount).clone().css( slideCSS ).prependTo( wrap );
+
+            wrap.find('.cycle-slide-active').removeClass('cycle-slide-active');
+            opts.slides.eq(opts.startingSlide).addClass('cycle-slide-active');
         }
 
         if ( opts.pager && opts.allowWrap === false ) {
@@ -236,7 +239,7 @@ $.fn.cycle.transitions.carousel = {
         // returns callback fn that resets the left/top wrap position to the "real" slides
         return function() {
             var pos = $(opts.slides[opts.nextSlide]).position();
-            var offset = 0 - pos[vert?'top':'left'] - (opts.carouselOffset || 0);
+            var offset = 0 - pos[vert?'top':'left'] + (opts.carouselOffset || 0);
             opts._carouselWrap.css( opts.carouselVertical ? 'top' : 'left', offset );
             callback();
         };
