@@ -1,5 +1,5 @@
 /*!
- * jQuery Cycle2 - Version: 20121219
+ * jQuery Cycle2 - Version: 20130129
  * http://malsup.com/jquery/cycle2/
  * Copyright (c) 2012 M. Alsup; Dual licensed: MIT/GPL
  * Requires: jQuery v1.7 or later
@@ -7,14 +7,14 @@
 ;(function($) {
 "use strict";
 
-var version = '20121219';
+var version = '20130129';
 
 $.fn.cycle = function( options ) {
     // fix mistakes with the ready state
     var o;
     if ( this.length === 0 && !$.isReady ) {
         o = { s: this.selector, c: this.context };
-        log('requeuing slideshow (dom not ready)');
+        $.fn.cycle.log('requeuing slideshow (dom not ready)');
         $(function() {
             $( o.s, o.c ).cycle(options);
         });
@@ -24,6 +24,7 @@ $.fn.cycle = function( options ) {
     return this.each(function() {
         var data, opts, shortName, val;
         var container = $(this);
+        var log = $.fn.cycle.log;
 
         if ( container.data('cycle.opts') )
             return; // already initialized
@@ -245,7 +246,7 @@ $.fn.cycle.API = {
 
         if (!tx) {
             tx = $.fn.cycle.transitions.fade;
-            log('Transition "' + opts.fx + '" not found.  Using fade.');
+            opts.API.log('Transition "' + opts.fx + '" not found.  Using fade.');
         }
         return tx;
     },
@@ -388,7 +389,7 @@ $.fn.cycle.API = {
             if (slideOpts.hasOwnProperty(p) && /^cycle[A-Z]+/.test(p) ) {
                 val = slideOpts[p];
                 shortName = p.match(/^cycle(.*)/)[1].replace(/^[A-Z]/, lowerCase);
-                log('['+(opts.slideCount-1)+']', shortName+':', val, '('+typeof val +')');
+                opts.API.log('['+(opts.slideCount-1)+']', shortName+':', val, '('+typeof val +')');
                 slideOpts[shortName] = val;
             }
         }
@@ -502,17 +503,17 @@ $.fn.cycle.API = {
 
 }; // API
 
-// expose default logger
-$.fn.cycle.log = log;
+// default logger
+$.fn.cycle.log = function log() {
+    /*global console:true */
+    if (window.console && console.log)
+        console.log('[cycle2] ' + Array.prototype.join.call(arguments, ' ') );
+};
 
 $.fn.cycle.version = function() { return 'Cycle2: ' + version; };
 
 // helper functions
-function log() {
-    /*global console:true */
-    if (window.console && console.log)
-        console.log('[cycle2] ' + Array.prototype.join.call(arguments, ' ') );
-}
+
 function lowerCase(s) {
     return (s || '').toLowerCase();
 }
@@ -588,7 +589,7 @@ $(document).ready(function() {
 
 })(jQuery);
 
-/*! Cycle2 autoheight plugin; Copyright (c) M.Alsup, 2012; version: 20121213 */
+/*! Cycle2 autoheight plugin; Copyright (c) M.Alsup, 2012; version: 20130123 */
 (function($) {
 "use strict";
 
@@ -618,9 +619,8 @@ $(document).on( 'cycle-initialized', function( e, opts ) {
         // clone existing slide as sentinel
         clone = $( opts.slides[ autoHeight ] ).clone();
         
-        // #50; remove ids/names in cloned content
-        clone.removeAttr( 'id' ).find( '[id]' ).removeAttr( 'id' );
-        clone.removeAttr( 'name' ).find( '[name]' ).removeAttr( 'name' );
+        // #50; remove special attributes from cloned content
+        clone.removeAttr( 'id name rel' ).find( '[id],[name],[rel]' ).removeAttr( 'id name rel' );
 
         clone.css({
             position: 'static',
@@ -1185,8 +1185,8 @@ $(document).on( 'cycle-pre-initialize', function( e, opts ) {
     var nextFn = API.next;
     var prevFn = API.prev;
     var prepareTxFn = API.prepareTx;
-    var slides;
     var type = $.type( opts.progressive );
+    var slides, scriptEl;
 
     if ( type == 'array' ) {
         slides = opts.progressive;
@@ -1194,18 +1194,40 @@ $(document).on( 'cycle-pre-initialize', function( e, opts ) {
     else if ($.isFunction( opts.progressive ) ) {
         slides = opts.progressive( opts );
     }
+    // else if ( type == 'string' ) {
+    //     slides = $( opts.progressive ).html();
+    //     if ( ! $.trim( slides ) )
+    //         return;
+    //     try {
+    //         slides = $.parseJSON( slides );
+    //     }
+    //     catch(err) {
+    //         API.log( 'error parsing progressive slides', err );
+    //         return;
+    //     }
+    // }
     else if ( type == 'string' ) {
-        slides = $( opts.progressive ).html();
-        if ( ! $.trim( slides ) )
+        scriptEl = $( opts.progressive );
+        slides = $.trim( scriptEl.html() );
+        if ( !slides )
             return;
-        try {
-            slides = $.parseJSON( slides );
+        // is it json array?
+        if ( /^(\[)/.test( slides ) ) {
+            try {
+                slides = $.parseJSON( slides );
+            }
+            catch(err) {
+                API.log( 'error parsing progressive slides', err );
+                return;
+            }
         }
-        catch(err) {
-            API.log( 'error parsing progressive slides', err );
-            return;
+        else {
+            // plain text, split on delimeter
+            slides = slides.split( new RegExp( scriptEl.data('cycle-split') || '\n') );
         }
     }
+
+
 
     if ( prepareTxFn ) {
         API.prepareTx = function( manual, fwd ) {
@@ -1287,7 +1309,7 @@ $(document).on( 'cycle-pre-initialize', function( e, opts ) {
 
 })(jQuery);
 
-/*! tmpl plugin for Cycle2;  version: 20121125 */
+/*! tmpl plugin for Cycle2;  version: 20121227 */
 (function($) {
 "use strict";
 
@@ -1304,6 +1326,8 @@ $.extend($.fn.cycle.API, {
             var i, j, obj, prop, names = str.split('.');
             for (i=0; i < args.length; i++) {
                 obj = args[i];
+                if ( ! obj )
+                    continue;
                 if (names.length > 1) {
                     prop = obj;
                     for (j=0; j < names.length; j++) {
