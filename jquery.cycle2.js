@@ -1,5 +1,5 @@
 /*!
- * jQuery Cycle2 - Version: 20130202
+ * jQuery Cycle2 - Version: 20130203
  * http://malsup.com/jquery/cycle2/
  * Copyright (c) 2012 M. Alsup; Dual licensed: MIT/GPL
  * Requires: jQuery v1.7 or later
@@ -7,7 +7,7 @@
 ;(function($) {
 "use strict";
 
-var version = '20130202';
+var version = '20130203';
 
 $.fn.cycle = function( options ) {
     // fix mistakes with the ready state
@@ -262,7 +262,7 @@ $.fn.cycle.API = {
             opts.timeoutId = 0;
             return;
         }
-        if ( manual ) {
+        if ( manual && ( !opts.busy || opts.manualTrump ) ) {
             opts.API.stopTransition();
             opts.busy = false;
             clearTimeout(opts.timeoutId);
@@ -575,6 +575,7 @@ $.fn.cycle.defaults = {
     loop:             0,
     manualFx:         undefined,
     manualSpeed:      undefined,
+    manualTrump:      false,
     maxZ:             100,
     pauseOnHover:     false,
     reverse:          false,
@@ -703,7 +704,7 @@ $(document).on( 'cycle-destroyed', function( e, opts ) {
 
 })(jQuery);
 
-/*! command plugin for Cycle2;  version: 20130202 */
+/*! command plugin for Cycle2;  version: 20130203 */
 (function($) {
 "use strict";
 
@@ -752,6 +753,9 @@ $.extend( $.fn.cycle, c2 );
 $.extend( c2.API, {
     next: function() {
         var opts = this.opts();
+        if ( opts.busy && ! opts.manualTrump )
+            return;
+        
         var count = opts.reverse ? -1 : 1;
         if ( opts.allowWrap === false && ( opts.currSlide + count ) >= opts.slideCount )
             return;
@@ -762,6 +766,8 @@ $.extend( c2.API, {
 
     prev: function() {
         var opts = this.opts();
+        if ( opts.busy && ! opts.manualTrump )
+            return;
         var count = opts.reverse ? 1 : -1;
         if ( opts.allowWrap === false && ( opts.currSlide + count ) < 0 )
             return;
@@ -790,6 +796,8 @@ $.extend( c2.API, {
         // go to the requested slide
         var fwd;
         var opts = this.opts();
+        if ( opts.busy && ! opts.manualTrump )
+            return;
         var num = parseInt( index, 10 );
         if (isNaN(num) || num < 0 || num >= opts.slides.length) {
             opts.API.log('goto: invalid slide index: ' + num);
@@ -1030,7 +1038,7 @@ $(document).on( 'cycle-bootstrap', function( e, opts ) {
 
 })(jQuery);
 
-/*! pager plugin for Cycle2;  version: 20121125 */
+/*! pager plugin for Cycle2;  version: 20130203 */
 (function($) {
 "use strict";
 
@@ -1105,6 +1113,9 @@ function buildPagerLink( opts, slideOpts, slide ) {
 function page( pager, target ) {
     /*jshint validthis:true */
     var opts = this.opts();
+    if ( opts.busy && ! opts.manualTrump )
+        return;
+
     var index = pager.children().index( target );
     var nextSlide = index;
     var fwd = opts.currSlide < nextSlide;
@@ -1210,18 +1221,6 @@ $(document).on( 'cycle-pre-initialize', function( e, opts ) {
     else if ($.isFunction( opts.progressive ) ) {
         slides = opts.progressive( opts );
     }
-    // else if ( type == 'string' ) {
-    //     slides = $( opts.progressive ).html();
-    //     if ( ! $.trim( slides ) )
-    //         return;
-    //     try {
-    //         slides = $.parseJSON( slides );
-    //     }
-    //     catch(err) {
-    //         API.log( 'error parsing progressive slides', err );
-    //         return;
-    //     }
-    // }
     else if ( type == 'string' ) {
         scriptEl = $( opts.progressive );
         slides = $.trim( scriptEl.html() );
