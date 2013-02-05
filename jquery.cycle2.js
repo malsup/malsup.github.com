@@ -1,5 +1,5 @@
 /*!
- * jQuery Cycle2 - Version: 20130203
+ * jQuery Cycle2 - Version: 20130205
  * http://malsup.com/jquery/cycle2/
  * Copyright (c) 2012 M. Alsup; Dual licensed: MIT/GPL
  * Requires: jQuery v1.7 or later
@@ -7,7 +7,7 @@
 ;(function($) {
 "use strict";
 
-var version = '20130203';
+var version = '20130205';
 
 $.fn.cycle = function( options ) {
     // fix mistakes with the ready state
@@ -164,6 +164,9 @@ $.fn.cycle.API = {
         var oldSlideCount = opts.slideCount;
         var startSlideshow = false;
         var len;
+
+        if ( $.type(slides) == 'string')
+            slides = $.trim( slides );
 
         $( slides ).each(function(i) {
             var slideOpts;
@@ -575,7 +578,7 @@ $.fn.cycle.defaults = {
     loop:             0,
     manualFx:         undefined,
     manualSpeed:      undefined,
-    manualTrump:      false,
+    manualTrump:      true,
     maxZ:             100,
     pauseOnHover:     false,
     reverse:          false,
@@ -1196,7 +1199,7 @@ $(document).on( 'cycle-destroyed', function( e, opts ) {
 
 })(jQuery);
 
-/*! progressive loader plugin for Cycle2;  version: 20130202 */
+/*! progressive loader plugin for Cycle2;  version: 20130205 */
 (function($) {
 "use strict";
 
@@ -1257,10 +1260,10 @@ $(document).on( 'cycle-pre-initialize', function( e, opts ) {
                 slide = slides[ 0 ];
                 slides = slides.slice( 1 );
                 opts.container.one('cycle-slide-added', function(e, opts ) {
-                    opts.API.advanceSlide( 1 );
-                    // opts.container.removeClass('cycle-loading');
+                    setTimeout(function() {
+                        opts.API.advanceSlide( 1 );
+                    },50);
                 });
-                // opts.container.addClass('cycle-loading');
                 opts.API.add( slide );
             }
             else if ( !fwd && opts.currSlide === 0 ) {
@@ -1268,11 +1271,11 @@ $(document).on( 'cycle-pre-initialize', function( e, opts ) {
                 slide = slides[ index ];
                 slides = slides.slice( 0, index );
                 opts.container.one('cycle-slide-added', function(e, opts ) {
-                    opts.currSlide = 1;
-                    opts.API.advanceSlide( -1 );
-                    // opts.container.removeClass('cycle-loading');
+                    setTimeout(function() {
+                        opts.currSlide = 1;
+                        opts.API.advanceSlide( -1 );
+                    },50);
                 });
-                // opts.container.addClass('cycle-loading');
                 opts.API.add( slide, true );
             }
             else {
