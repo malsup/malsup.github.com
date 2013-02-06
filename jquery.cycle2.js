@@ -1199,7 +1199,7 @@ $(document).on( 'cycle-destroyed', function( e, opts ) {
 
 })(jQuery);
 
-/*! progressive loader plugin for Cycle2;  version: 20130205 */
+/*! progressive loader plugin for Cycle2;  version: 20130206 */
 (function($) {
 "use strict";
 
@@ -1242,6 +1242,10 @@ $(document).on( 'cycle-pre-initialize', function( e, opts ) {
         else {
             // plain text, split on delimeter
             slides = slides.split( new RegExp( scriptEl.data('cycle-split') || '\n') );
+            
+            // #95; look for empty slide
+            if ( ! slides[ slides.length - 0 ] )
+                slides.pop();
         }
     }
 
