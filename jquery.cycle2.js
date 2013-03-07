@@ -1,5 +1,5 @@
 /*!
- * jQuery Cycle2 - Version: 20130205
+ * jQuery Cycle2 - Version: 20130306
  * http://malsup.com/jquery/cycle2/
  * Copyright (c) 2012 M. Alsup; Dual licensed: MIT/GPL
  * Requires: jQuery v1.7 or later
@@ -7,7 +7,7 @@
 ;(function($) {
 "use strict";
 
-var version = '20130205';
+var version = '20130306';
 
 $.fn.cycle = function( options ) {
     // fix mistakes with the ready state
@@ -317,9 +317,7 @@ $.fn.cycle.API = {
                 opts.API.doTransition( slideOpts, curr, next, fwd, after);
 
             opts.API.calcNextSlide();
-
-            if ( opts.updateView < 0 )
-                opts.API.updateView();
+            opts.API.updateView();
         } else {
             opts.API.queueTransition( slideOpts );
         }
@@ -452,6 +450,12 @@ $.fn.cycle.API = {
         var slideOpts = opts.API.getSlideOpts();
         var currSlide = opts.slides[ opts.currSlide ];
 
+        if ( ! isAfter ) {
+            opts.API.trigger('cycle-update-view-before', [ opts, slideOpts, currSlide ]);
+            if ( opts.updateView < 0 )
+                return;
+        }
+
         if ( opts.slideActiveClass ) {
             opts.slides.removeClass( opts.slideActiveClass )
                 .eq( opts.currSlide ).addClass( opts.slideActiveClass );
@@ -460,7 +464,8 @@ $.fn.cycle.API = {
         if ( isAfter && opts.hideNonActive )
             opts.slides.filter( ':not(.' + opts.slideActiveClass + ')' ).hide();
 
-        opts.API.trigger('cycle-update-view', [ opts, slideOpts, currSlide ]);
+        opts.API.trigger('cycle-update-view', [ opts, slideOpts, currSlide, isAfter ]);
+        opts.API.trigger('cycle-update-view-after', [ opts, slideOpts, currSlide ]);
     },
 
     getComponent: function( name ) {
@@ -667,7 +672,7 @@ $(document).on( 'cycle-destroyed', function( e, opts ) {
 
 })(jQuery);
 
-/*! caption plugin for Cycle2;  version: 20121125 */
+/*! caption plugin for Cycle2;  version: 20130306 */
 (function($) {
 "use strict";
 
@@ -675,10 +680,13 @@ $.extend($.fn.cycle.defaults, {
     caption:          '> .cycle-caption',
     captionTemplate:  '{{slideNum}} / {{slideCount}}',
     overlay:          '> .cycle-overlay',
-    overlayTemplate:  '<div>{{title}}</div><div>{{desc}}</div>'
+    overlayTemplate:  '<div>{{title}}</div><div>{{desc}}</div>',
+    captionModule:    'caption'
 });    
 
 $(document).on( 'cycle-update-view', function( e, opts, slideOpts, currSlide ) {
+    if ( opts.captionModule !== 'caption' )
+        return;
     var el;
     $.each(['caption','overlay'], function() {
         var name = this; 
@@ -974,7 +982,8 @@ $(document).on( 'cycle-bootstrap', function( e, opts ) {
             var slide = $(this);
             var images = slide.is('img') ? slide : slide.find('img');
             slide.data('index', i);
-            images = images.filter(':not(.cycle-loader-ignore)'); // allow some images to be marked as unimportant
+            // allow some images to be marked as unimportant (and filter out images w/o src value)
+            images = images.filter(':not(.cycle-loader-ignore)').filter(':not([src=""])');
             if ( ! images.length ) {
                 --slideCount;
                 slideArr.push( slide );
