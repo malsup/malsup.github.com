@@ -1,5 +1,5 @@
 /*!
- * jQuery Cycle2 - Version: 20130306
+ * jQuery Cycle2 - Version: 20130307
  * http://malsup.com/jquery/cycle2/
  * Copyright (c) 2012 M. Alsup; Dual licensed: MIT/GPL
  * Requires: jQuery v1.7 or later
@@ -7,7 +7,7 @@
 ;(function($) {
 "use strict";
 
-var version = '20130306';
+var version = '20130307';
 
 $.fn.cycle = function( options ) {
     // fix mistakes with the ready state
@@ -115,6 +115,7 @@ $.fn.cycle.API = {
     initSlideshow: function() {
         var opts = this.opts();
         var pauseObj = opts.container;
+        var slideOpts;
         opts.API.calcFirstSlide();
 
         if ( opts.container.css('position') == 'static' )
@@ -144,9 +145,8 @@ $.fn.cycle.API = {
 
         // stage initial transition
         if ( opts.timeout ) {
-            opts.timeoutId = setTimeout(function() {
-                opts.API.prepareTx( false, !opts.reverse );
-            }, opts.timeout + opts.delay);
+            slideOpts = opts.API.getSlideOpts( opts.nextSlide );
+            opts.API.queueTransition( slideOpts );
         }
 
         opts._initialized = true;
@@ -194,6 +194,7 @@ $.fn.cycle.API = {
         opts.API.updateView( true );
 
         startSlideshow = opts._preInitialized && (oldSlideCount < 2 && opts.slideCount >= 1);
+        // startSlideshow = !opts._started && opts._preInitialized && opts.slideCount >= 1;
         if ( startSlideshow ) {
             if ( !opts._initialized )
                 opts.API.initSlideshow();
@@ -204,6 +205,7 @@ $.fn.cycle.API = {
                     opts.API.queueTransition( opts );
                 }
             }
+            opts._started = true;
         }
     },
 
@@ -286,6 +288,9 @@ $.fn.cycle.API = {
         if ( manual && slideOpts.manualSpeed !== undefined )
             slideOpts.speed = slideOpts.manualSpeed;
 
+        if ( opts.nextSlide === opts.currSlide )
+            opts.API.calcNextSlide();
+
         // ensure that:
         //      1. advancing to a different slide
         //      2. this is either a manual event (prev/next, pager, cmd) or 
@@ -349,7 +354,14 @@ $.fn.cycle.API = {
         if (opts.nextSlide === 0 && --opts.loop === 0) {
             opts.API.log('terminating; loop=0');
             opts.timeout = 0;
-            opts.API.trigger('cycle-finished', [ opts ]);
+            if (slideOpts.timeout) {
+                setTimeout(function() {
+                    opts.API.trigger('cycle-finished', [ opts ]);
+                }, slideOpts.timeout);
+            }
+            else {
+                opts.API.trigger('cycle-finished', [ opts ]);
+            }
             // reset nextSlide
             opts.nextSlide = opts.currSlide;
             return;
@@ -972,10 +984,18 @@ $(document).on( 'cycle-bootstrap', function( e, opts ) {
 
     function add( slides, prepend ) {
         var slideArr = [];
-        if ( typeof slides == 'string' )
+        if ( $.type( slides ) == 'string' )
             slides = $.trim( slides );
+        else if ( $.type( slides) === 'array' ) {
+            for (var i=0; i < slides.length; i++ )
+                slides[i] = $(slides[i])[0];
+        }
+
         slides = $( slides );
         var slideCount = slides.length;
+
+        if ( ! slideCount )
+            return;
 
         slides.hide().appendTo('body').each(function(i) { // appendTo fixes #56
             var count = 0;
