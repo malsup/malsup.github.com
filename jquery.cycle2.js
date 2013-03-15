@@ -1252,7 +1252,7 @@ $(document).on( 'cycle-destroyed', function( e, opts ) {
 
 })(jQuery);
 
-/*! progressive loader plugin for Cycle2;  version: 20130206 */
+/*! progressive loader plugin for Cycle2;  version: 20130315 */
 (function($) {
 "use strict";
 
@@ -1297,7 +1297,7 @@ $(document).on( 'cycle-pre-initialize', function( e, opts ) {
             slides = slides.split( new RegExp( scriptEl.data('cycle-split') || '\n') );
             
             // #95; look for empty slide
-            if ( ! slides[ slides.length - 0 ] )
+            if ( ! slides[ slides.length - 1 ] )
                 slides.pop();
         }
     }
