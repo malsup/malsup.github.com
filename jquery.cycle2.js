@@ -615,7 +615,7 @@ $(document).ready(function() {
 
 })(jQuery);
 
-/*! Cycle2 autoheight plugin; Copyright (c) M.Alsup, 2012; version: 20130309 */
+/*! Cycle2 autoheight plugin; Copyright (c) M.Alsup, 2012; version: 20130322 */
 (function($) {
 "use strict";
 
@@ -653,7 +653,7 @@ function initAutoHeight(e, opts) {
             position: 'static',
             visibility: 'hidden',
             display: 'block'
-        }).prependTo( opts.container ).removeClass().addClass('cycle-sentinel cycle-slide');
+        }).prependTo( opts.container ).addClass('cycle-sentinel cycle-slide');
         clone.find( '*' ).css( 'visibility', 'hidden' );
 
         opts._sentinel = clone;
