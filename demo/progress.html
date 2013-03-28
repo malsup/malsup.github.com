@@ -70,6 +70,9 @@ $('form').ajaxForm({
         bar.width(percentVal);
         percent.html(percentVal);
     },
+    error: function(xhr, status, err) {
+        status.html(err || status);
+    },
     complete: function(xhr) {
         status.html(xhr.responseText);
     }
@@ -129,6 +132,9 @@ $('form').ajaxForm({
         var percentVal = '100%';
         bar.width(percentVal);
         percent.html(percentVal);
+    },
+    error: function(xhr, status, err) {
+        status.html(err || status);
     },
 	complete: function(xhr) {
 		status.html(xhr.responseText);
