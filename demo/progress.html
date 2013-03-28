@@ -65,16 +65,14 @@ $('form').ajaxForm({
         bar.width(percentVal);
         percent.html(percentVal);
     },
-    success: function() {
+    success: function(data, status, xhr) {
         var percentVal = '100%';
         bar.width(percentVal);
         percent.html(percentVal);
+        status.html(xhr.responseText);
     },
     error: function(xhr, status, err) {
         status.html(err || status);
-    },
-    complete: function(xhr) {
-        status.html(xhr.responseText);
     }
 }); 
 
@@ -128,17 +126,15 @@ $('form').ajaxForm({
         bar.width(percentVal);
         percent.html(percentVal);
     },
-    success: function() {
+    success: function(data, status, xhr) {
         var percentVal = '100%';
         bar.width(percentVal);
         percent.html(percentVal);
+        status.html(xhr.responseText);
     },
     error: function(xhr, status, err) {
         status.html(err || status);
-    },
-	complete: function(xhr) {
-		status.html(xhr.responseText);
-	}
+    }
 }); 
 
 })();       
