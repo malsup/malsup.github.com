@@ -1,0 +1,142 @@
+<!doctype html>
+<head>
+<title>File Upload Progress Demo (cors)</title>
+<style>
+body { padding: 0 30px; font-family: 'Lucida Grande', 'Lucida Sans', arial, sans-serif; }
+form { display: block; margin: 20px auto; background: #FFD7AB; border-radius: 5px; padding: 15px }
+h2 { margin-top: 50px; }
+pre { background: #eee; padding: 10px; border-radius: 5px; overflow: auto }
+.progress { position:relative; width:400px; border: 1px solid #ddd; padding: 1px; border-radius: 3px; }
+.bar { background-color: #B4F5B4; width:0%; height:20px; border-radius: 3px; }
+.percent { position:absolute; display:inline-block; top:3px; left:48%; }
+</style>
+</head>
+<body>
+    <h1>File Upload Progress Demo (cors)</h1>
+	<code>&lt;input type="file" name="myfile"></code>
+    <form action="http://malsup.com/jquery/form/file-echo2.php" method="post" enctype="multipart/form-data">
+        <input type="file" name="myfile"><br>
+        <input type="submit" value="Upload File to Server">
+    </form>
+    
+    <div class="progress">
+        <div class="bar"></div >
+        <div class="percent">0%</div >
+    </div>
+    
+    <div id="status"></div>
+
+<h2>Markup</h2>
+<pre>
+&lt;form 
+    action="http://malsup.com/jquery/form/file-echo2.php" 
+    method="post" 
+    enctype="multipart/form-data">
+
+    &lt;input type="file" name="myfile">&lt;br>
+    &lt;input type="submit" value="Upload File to Server">
+&lt;/form>
+
+&lt;div class="progress">
+    &lt;div class="bar">&lt;/div >
+    &lt;div class="percent">0%&lt;/div >
+&lt;/div>
+
+&lt;div id="status">&lt;/div>
+</pre>    
+<h2>Client Script</h2>
+<pre>
+&lt;script>
+(function() {
+"use strict";
+
+var bar = $('.bar');
+var percent = $('.percent');
+var status = $('#status');
+   
+$('form').ajaxForm({
+    beforeSend: function() {
+        status.empty();
+        var percentVal = '0%';
+        bar.width(percentVal);
+        percent.html(percentVal);
+    },
+    uploadProgress: function(event, position, total, percentComplete) {
+        var percentVal = percentComplete + '%';
+        bar.width(percentVal);
+        percent.html(percentVal);
+    },
+    success: function() {
+        var percentVal = '100%';
+        bar.width(percentVal);
+        percent.html(percentVal);
+    },
+    complete: function(xhr) {
+        status.html(xhr.responseText);
+    }
+}); 
+
+})();       
+&lt;/script>
+</pre>
+<h2>Server Script (file-echo2.php)</h2>
+<pre>
+&lt;?php
+
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+
+foreach($_FILES as $file) {
+    $n = $file['name'];
+    $s = $file['size'];
+    if (is_array($n)) {
+        $c = count($n);
+        for ($i=0; $i &lt; $c; $i++) {
+            echo "&lt;br>uploaded: " . $n[$i] . " (" . $s[$i] . " bytes)";
+        }
+    }
+    else {
+        echo "&lt;br>uploaded: $n ($s bytes)";
+    }
+}
+?>
+</pre>
+</div>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"></script>
+<script src="http://malsup.github.com/jquery.form.js"></script>
+<script src="../chili-1.7.pack.js"></script>
+<script>
+(function() {
+"use strict";
+
+var bar = $('.bar');
+var percent = $('.percent');
+var status = $('#status');
+   
+$('form').ajaxForm({
+    beforeSend: function() {
+        status.empty();
+        var percentVal = '0%';
+        bar.width(percentVal);
+        percent.html(percentVal);
+    },
+    uploadProgress: function(event, position, total, percentComplete) {
+        var percentVal = percentComplete + '%';
+        bar.width(percentVal);
+        percent.html(percentVal);
+    },
+    success: function() {
+        var percentVal = '100%';
+        bar.width(percentVal);
+        percent.html(percentVal);
+    },
+	complete: function(xhr) {
+		status.html(xhr.responseText);
+	}
+}); 
+
+})();       
+</script>
+</body>
+</html>
