@@ -71,8 +71,8 @@ $('form').ajaxForm({
         percent.html(percentVal);
         status.html(xhr.responseText);
     },
-    error: function(xhr, status, err) {
-        status.html(err || status);
+    error: function(xhr, statusText, err) {
+        status.html(err || statusText);
     }
 }); 
 
@@ -132,8 +132,8 @@ $('form').ajaxForm({
         percent.html(percentVal);
         status.html(xhr.responseText);
     },
-    error: function(xhr, status, err) {
-        status.html(err || status);
+    error: function(xhr, statusText, err) {
+        status.html(err || statusText);
     }
 }); 
 
