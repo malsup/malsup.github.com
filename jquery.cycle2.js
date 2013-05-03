@@ -1,5 +1,5 @@
 /*!
- * jQuery Cycle2 - Version: 20130327
+ * jQuery Cycle2 - Version: 20130502
  * http://malsup.com/jquery/cycle2/
  * Copyright (c) 2012 M. Alsup; Dual licensed: MIT/GPL
  * Requires: jQuery v1.7 or later
@@ -7,7 +7,7 @@
 ;(function($) {
 "use strict";
 
-var version = '20130323';
+var version = '20130409';
 
 $.fn.cycle = function( options ) {
     // fix mistakes with the ready state
@@ -167,7 +167,7 @@ $.fn.cycle.API = {
                 
                 // determine how much time is left for the current slide
                 opts._remainingTimeout -= ( $.now() - opts._lastQueue );
-                if ( opts._remainingTimeout < 0 )
+                if ( opts._remainingTimeout < 0 || isNaN(opts._remainingTimeout) )
                     opts._remainingTimeout = undefined;
             }
         }
