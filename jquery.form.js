@@ -1,6 +1,6 @@
 /*!
  * jQuery Form Plugin
- * version: 3.32.0-2013.04.09
+ * version: 3.34.0-2013.05.17
  * @requires jQuery v1.5 or later
  * Copyright (c) 2013 M. Alsup
  * Examples and documentation at: http://malsup.com/jquery/form/
@@ -90,8 +90,8 @@ $.fn.ajaxSubmit = function(options) {
         options = { success: options };
     }
 
-    method = this.attr2('method');
-    action = this.attr2('action');
+    method = options.type || this.attr2('method');
+    action = options.url  || this.attr2('action');
 
     url = (typeof action === 'string') ? $.trim(action) : '';
     url = url || window.location.href || '';
@@ -185,6 +185,22 @@ $.fn.ajaxSubmit = function(options) {
             callbacks[i].apply(context, [data, status, xhr || $form, $form]);
         }
     };
+
+    if (options.error) {
+        var oldError = options.error;
+        options.error = function(xhr, status, error) {
+            var context = options.context || this;
+            oldError.apply(context, [xhr, status, error, $form]);
+        };
+    }
+
+     if (options.complete) {
+        var oldComplete = options.complete;
+        options.complete = function(xhr, status) {
+            var context = options.context || this;
+            oldComplete.apply(context, [xhr, status, $form]);
+        };
+    }
 
     // are there files to upload?
 
