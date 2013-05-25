@@ -1164,7 +1164,7 @@ $(document).on( 'cycle-bootstrap', function( e, opts ) {
 
 })(jQuery);
 
-/*! pager plugin for Cycle2;  version: 20130203 */
+/*! pager plugin for Cycle2;  version: 20130525 */
 (function($) {
 "use strict";
 
@@ -1210,10 +1210,12 @@ $(document).on( 'cycle-update-view', function( e, opts, slideOpts ) {
 });
 
 $(document).on( 'cycle-destroyed', function( e, opts ) {
-    var pagers;
-    if (opts.pager && opts.pagerTemplate) {
-        pagers = opts.API.getComponent( 'pager' );
-        pagers.empty();
+    var pager = opts.API.getComponent( 'pager' );
+
+    if ( pager ) {
+        pager.children().off( opts.pagerEvent ); // #202
+        if ( opts.pagerTemplate )
+            pager.empty();
     }
 });
 
