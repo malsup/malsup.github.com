@@ -827,7 +827,7 @@ $(document).on( 'cycle-destroyed', function( e, opts ) {
 
 })(jQuery);
 
-/*! command plugin for Cycle2;  version: 20130525 */
+/*! command plugin for Cycle2;  version: 20130525.1 */
 (function($) {
 "use strict";
 
@@ -900,6 +900,8 @@ $.extend( c2.API, {
     },
 
     destroy: function() {
+        this.stop(); //#204
+
         var opts = this.opts();
         var clean = $.isFunction( $._data ) ? $._data : $.noop;  // hack for #184 and #201
         clearTimeout(opts.timeoutId);
