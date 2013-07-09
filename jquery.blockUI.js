@@ -1,6 +1,6 @@
 /*!
  * jQuery blockUI plugin
- * Version 2.62.0-2013.07.01
+ * Version 2.63.0-2013.07.08
  * @requires jQuery v1.7 or later
  *
  * Examples at: http://malsup.com/jquery/block/
@@ -22,7 +22,7 @@
 		var noOp = $.noop || function() {};
 
 		// this bit is to ensure we don't call setExpression when we shouldn't (with extra muscle to handle
-		// retarded userAgent strings on Vista)
+		// confusing userAgent strings on Vista)
 		var msie = /MSIE/.test(navigator.userAgent);
 		var ie6  = /MSIE 6.0/.test(navigator.userAgent) && ! /MSIE 8.0/.test(navigator.userAgent);
 		var mode = document.documentMode || 0;
@@ -491,7 +491,7 @@
 
 			if (opts.fadeOut) {
 				count = els.length;
-				els.fadeOut(opts.fadeOut, function() {
+				els.stop().fadeOut(opts.fadeOut, function() {
 					if ( --count === 0)
 						reset(els,data,opts,el);
 				});
