@@ -2,7 +2,7 @@
  * jQuery Cycle Plugin (with Transition Definitions)
  * Examples and documentation at: http://jquery.malsup.com/cycle/
  * Copyright (c) 2007-2013 M. Alsup
- * Version: 3.0.2 (19-APR-2013)
+ * Version: 3.0.3 (11-JUL-2013)
  * Dual licensed under the MIT and GPL licenses.
  * http://jquery.malsup.com/license.html
  * Requires: jQuery v1.7.1 or later
@@ -10,13 +10,14 @@
 ;(function($, undefined) {
 "use strict";
 
-var ver = '3.0.2';
+var ver = '3.0.3';
 
 function debug(s) {
 	if ($.fn.cycle.debug)
 		log(s);
 }		
 function log() {
+	/*global console */
 	if (window.console && console.log)
 		console.log('[cycle] ' + Array.prototype.join.call(arguments,' '));
 }
@@ -963,7 +964,7 @@ $.fn.cycle.commonReset = function(curr,next,opts,w,h,rev) {
 // the actual fn for effecting a transition
 $.fn.cycle.custom = function(curr, next, opts, cb, fwd, speedOverride) {
 	var $l = $(curr), $n = $(next);
-	var speedIn = opts.speedIn, speedOut = opts.speedOut, easeIn = opts.easeIn, easeOut = opts.easeOut;
+	var speedIn = opts.speedIn, speedOut = opts.speedOut, easeIn = opts.easeIn, easeOut = opts.easeOut, animInDelay = opts.animInDelay, animOutDelay = opts.animOutDelay;
 	$n.css(opts.cssBefore);
 	if (speedOverride) {
 		if (typeof speedOverride == 'number')
@@ -973,11 +974,11 @@ $.fn.cycle.custom = function(curr, next, opts, cb, fwd, speedOverride) {
 		easeIn = easeOut = null;
 	}
 	var fn = function() {
-		$n.animate(opts.animIn, speedIn, easeIn, function() {
+		$n.delay(animInDelay).animate(opts.animIn, speedIn, easeIn, function() {
 			cb();
 		});
 	};
-	$l.animate(opts.animOut, speedOut, easeOut, function() {
+	$l.delay(animOutDelay).animate(opts.animOut, speedOut, easeOut, function() {
 		$l.css(opts.cssAfter);
 		if (!opts.sync) 
 			fn();
@@ -1007,7 +1008,9 @@ $.fn.cycle.defaults = {
     after:            null,     // transition callback (scope set to element that was shown):  function(currSlideElement, nextSlideElement, options, forwardFlag)
     allowPagerClickBubble: false, // allows or prevents click event on pager anchors from bubbling
     animIn:           null,     // properties that define how the slide animates in
+    animInDelay:      0,        // allows delay before next slide transitions in	
     animOut:          null,     // properties that define how the slide animates out
+    animOutDelay:     0,        // allows delay before current slide transitions out
     aspect:           false,    // preserve aspect ratio during fit resizing, cropping if necessary (must be used with fit option)
     autostop:         0,        // true to end slideshow after X transitions (where X == slide count)
     autostopCount:    0,        // number of transitions (optionally used with autostop to define X)
