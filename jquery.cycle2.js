@@ -1,13 +1,14 @@
-/*!
- * jQuery Cycle2 - Version: 20130709
- * http://malsup.com/jquery/cycle2/
- * Copyright (c) 2012 M. Alsup; Dual licensed: MIT/GPL
- * Requires: jQuery v1.7 or later
- */
+/*
+* jQuery Cycle2; build: v20130725
+* http://jquery.malsup.com/cycle2/
+* Copyright (c) 2013 M. Alsup; Dual licensed: MIT/GPL
+*/
+
+/*! core engine; version: 20130725 */
 ;(function($) {
 "use strict";
 
-var version = '20130709';
+var version = '20130725';
 
 $.fn.cycle = function( options ) {
     // fix mistakes with the ready state
@@ -1015,7 +1016,7 @@ $(document).on('click.cycle', '[data-cycle-cmd]', function(e) {
 
 })(jQuery);
 
-/*! hash plugin for Cycle2;  version: 20121120 */
+/*! hash plugin for Cycle2;  version: 20130725 */
 (function($) {
 "use strict";
 
@@ -1030,7 +1031,7 @@ $(document).on( 'cycle-pre-initialize', function( e, opts ) {
 });
 
 $(document).on( 'cycle-update-view', function( e, opts, slideOpts ) {
-    if ( slideOpts.hash ) {
+    if ( slideOpts.hash && ( '#' + slideOpts.hash ) != window.location.hash ) {
         opts._hashFence = true;
         window.location.hash = slideOpts.hash;
     }
