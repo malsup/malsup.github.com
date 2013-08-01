@@ -1,5 +1,5 @@
 /*
-* jQuery Cycle2; build: v20130725
+* jQuery Cycle2; build: v20130731
 * http://jquery.malsup.com/cycle2/
 * Copyright (c) 2013 M. Alsup; Dual licensed: MIT/GPL
 */
