@@ -1,4 +1,4 @@
-/*! hash plugin for Cycle2;  version: 20130725 */
+/*! hash plugin for Cycle2;  version: 20130905 */
 (function($) {
 "use strict";
 
@@ -40,8 +40,9 @@ function onHashChange( opts, setStartingSlide ) {
                 opts.startingSlide = i;
             }
             else {
+                var fwd = opts.currSlide < i;
                 opts.nextSlide = i;
-                opts.API.prepareTx( true, false );
+                opts.API.prepareTx( true, fwd );
             }
             return false;
         }
