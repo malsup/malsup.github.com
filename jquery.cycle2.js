@@ -1,10 +1,10 @@
 /*
-* jQuery Cycle2; build: v20130801
+* jQuery Cycle2; build: v20130909
 * http://jquery.malsup.com/cycle2/
 * Copyright (c) 2013 M. Alsup; Dual licensed: MIT/GPL
 */
 
-/*! core engine; version: 20130725 */
+/*! core engine; version: 20130909 */
 ;(function($) {
 "use strict";
 
@@ -496,14 +496,14 @@ $.fn.cycle.API = {
         slide.addClass( opts.slideClass );
     },
 
-    updateView: function( isAfter ) {
+    updateView: function( isAfter, isDuring ) {
         var opts = this.opts();
         if ( !opts._initialized )
             return;
         var slideOpts = opts.API.getSlideOpts();
         var currSlide = opts.slides[ opts.currSlide ];
 
-        if ( ! isAfter ) {
+        if ( ! isAfter && isDuring !== true ) {
             opts.API.trigger('cycle-update-view-before', [ opts, slideOpts, currSlide ]);
             if ( opts.updateView < 0 )
                 return;
@@ -518,7 +518,9 @@ $.fn.cycle.API = {
             opts.slides.filter( ':not(.' + opts.slideActiveClass + ')' ).hide();
 
         opts.API.trigger('cycle-update-view', [ opts, slideOpts, currSlide, isAfter ]);
-        opts.API.trigger('cycle-update-view-after', [ opts, slideOpts, currSlide ]);
+        
+        if ( isAfter )
+            opts.API.trigger('cycle-update-view-after', [ opts, slideOpts, currSlide ]);
     },
 
     getComponent: function( name ) {
@@ -1016,7 +1018,7 @@ $(document).on('click.cycle', '[data-cycle-cmd]', function(e) {
 
 })(jQuery);
 
-/*! hash plugin for Cycle2;  version: 20130725 */
+/*! hash plugin for Cycle2;  version: 20130905 */
 (function($) {
 "use strict";
 
@@ -1058,8 +1060,9 @@ function onHashChange( opts, setStartingSlide ) {
                 opts.startingSlide = i;
             }
             else {
+                var fwd = opts.currSlide < i;
                 opts.nextSlide = i;
-                opts.API.prepareTx( true, false );
+                opts.API.prepareTx( true, fwd );
             }
             return false;
         }
