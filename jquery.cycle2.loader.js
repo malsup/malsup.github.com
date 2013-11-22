@@ -1,4 +1,4 @@
-/*! loader plugin for Cycle2;  version: 20130307 */
+/*! loader plugin for Cycle2;  version: 20131121 */
 (function($) {
 "use strict";
 
@@ -53,7 +53,7 @@ $(document).on( 'cycle-bootstrap', function( e, opts ) {
                 else {
                     $(this).load(function() {
                         imageLoaded();
-                    }).error(function() {
+                    }).on("error", function() {
                         if ( --count === 0 ) {
                             // ignore this slide
                             opts.API.log('slide skipped; img not loaded:', this.src);
