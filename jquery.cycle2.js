@@ -1,5 +1,5 @@
 /*!
-* jQuery Cycle2; build: v20131005
+* jQuery Cycle2; build: v20131022
 * http://jquery.malsup.com/cycle2/
 * Copyright (c) 2013 M. Alsup; Dual licensed: MIT/GPL
 */
@@ -517,7 +517,14 @@ $.fn.cycle.API = {
         if ( isAfter && opts.hideNonActive )
             opts.slides.filter( ':not(.' + opts.slideActiveClass + ')' ).hide();
 
-        opts.API.trigger('cycle-update-view', [ opts, slideOpts, currSlide, isAfter ]);
+        if ( opts.updateView === 0 ) {
+            setTimeout(function() {
+                opts.API.trigger('cycle-update-view', [ opts, slideOpts, currSlide, isAfter ]);
+            }, slideOpts.speed / (opts.sync ? 2 : 1) );
+        }
+
+        if ( opts.updateView !== 0 )
+            opts.API.trigger('cycle-update-view', [ opts, slideOpts, currSlide, isAfter ]);
         
         if ( isAfter )
             opts.API.trigger('cycle-update-view-after', [ opts, slideOpts, currSlide ]);
@@ -650,7 +657,7 @@ $.fn.cycle.defaults = {
     startingSlide:    0,
     sync:             true,
     timeout:          4000,
-    updateView:       -1
+    updateView:       0
 };
 
 // automatically find and run slideshows
@@ -1071,7 +1078,7 @@ function onHashChange( opts, setStartingSlide ) {
 
 })(jQuery);
 
-/*! loader plugin for Cycle2;  version: 20130307 */
+/*! loader plugin for Cycle2;  version: 20131020 */
 (function($) {
 "use strict";
 
@@ -1103,6 +1110,8 @@ $(document).on( 'cycle-bootstrap', function( e, opts ) {
 
         if ( ! slideCount )
             return;
+
+        opts.eventualSlideCount = opts.slideCount + slideCount;
 
         slides.hide().appendTo('body').each(function(i) { // appendTo fixes #56
             var count = 0;
