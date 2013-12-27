@@ -1,6 +1,6 @@
 /*!
  * jQuery Form Plugin
- * version: 3.46.0-2013.11.21
+ * version: 3.47.0-2013.12.27
  * Requires jQuery v1.5 or later
  * Copyright (c) 2013 M. Alsup
  * Examples and documentation at: http://malsup.com/jquery/form/
@@ -12,6 +12,7 @@
 
 // AMD support
 (function (factory) {
+    "use strict";
     if (typeof define === 'function' && define.amd) {
         // using AMD; register as anon module
         define(['jquery'], factory);
@@ -491,7 +492,10 @@ $.fn.ajaxSubmit = function(options) {
         // take a breath so that pending repaints get some cpu time before the upload starts
         function doSubmit() {
             // make sure form attrs are set
-            var t = $form.attr2('target'), a = $form.attr2('action');
+            var t = $form.attr2('target'), 
+                a = $form.attr2('action'), 
+                mp = 'multipart/form-data',
+                et = $form.attr('enctype') || $form.attr('encoding') || mp;
 
             // update form attrs in IE friendly way
             form.setAttribute('target',id);
@@ -573,6 +577,7 @@ $.fn.ajaxSubmit = function(options) {
             finally {
                 // reset attrs and remove "extra" input elements
                 form.setAttribute('action',a);
+                form.setAttribute('enctype', et); // #380
                 if(t) {
                     form.setAttribute('target', t);
                 } else {
@@ -907,8 +912,21 @@ $.fn.formToArray = function(semantic, elements) {
     }
 
     var form = this[0];
+    var formId = this.attr('id');
     var els = semantic ? form.getElementsByTagName('*') : form.elements;
-    if (!els) {
+    var els2;
+
+    if ( els )
+        els = $(els).get();  // convert to standard array
+
+    // #386; account for inputs outside the form which use the 'form' attribute
+    if ( formId ) {
+        els2 = $(':input[form=' + formId + ']').get();
+        if ( els2.length )
+            els = (els || []).concat(els2);
+    }
+
+    if (!els || !els.length) {
         return a;
     }
 
