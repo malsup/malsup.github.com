@@ -1,14 +1,14 @@
 /*!
-* jQuery Cycle2; build: v20131022
+* jQuery Cycle2; version: 2.0.0 build: 20140114
 * http://jquery.malsup.com/cycle2/
-* Copyright (c) 2013 M. Alsup; Dual licensed: MIT/GPL
+* Copyright (c) 2014 M. Alsup; Dual licensed: MIT/GPL
 */
 
-/*! core engine; version: 20131003 */
+/* Cycle2 core engine */
 ;(function($) {
 "use strict";
 
-var version = '20131003';
+var version = '20140114';
 
 $.fn.cycle = function( options ) {
     // fix mistakes with the ready state
@@ -496,7 +496,7 @@ $.fn.cycle.API = {
         slide.addClass( opts.slideClass );
     },
 
-    updateView: function( isAfter, isDuring ) {
+    updateView: function( isAfter, isDuring, forceEvent ) {
         var opts = this.opts();
         if ( !opts._initialized )
             return;
@@ -667,12 +667,14 @@ $(document).ready(function() {
 
 })(jQuery);
 
-/*! Cycle2 autoheight plugin; Copyright (c) M.Alsup, 2012; version: 20130304 */
+/*! Cycle2 autoheight plugin; Copyright (c) M.Alsup, 2012; version: 20130913 */
 (function($) {
 "use strict";
 
 $.extend($.fn.cycle.defaults, {
-    autoHeight: 0 // setting this option to false disables autoHeight logic
+    autoHeight: 0, // setting this option to false disables autoHeight logic
+    autoHeightSpeed: 250,
+    autoHeightEasing: null
 });    
 
 $(document).on( 'cycle-initialized', function( e, opts ) {
@@ -777,8 +779,7 @@ function calcSentinelIndex( e, opts ) {
 
 function onBefore( e, opts, outgoing, incoming, forward ) {
     var h = $(incoming).outerHeight();
-    var duration = opts.sync ? opts.speed / 2 : opts.speed;
-    opts.container.animate( { height: h }, duration );
+    opts.container.animate( { height: h }, opts.autoHeightSpeed, opts.autoHeightEasing );
 }
 
 function onDestroy( e, opts ) {
@@ -1078,7 +1079,7 @@ function onHashChange( opts, setStartingSlide ) {
 
 })(jQuery);
 
-/*! loader plugin for Cycle2;  version: 20131020 */
+/*! loader plugin for Cycle2;  version: 20131121 */
 (function($) {
 "use strict";
 
@@ -1111,8 +1112,6 @@ $(document).on( 'cycle-bootstrap', function( e, opts ) {
         if ( ! slideCount )
             return;
 
-        opts.eventualSlideCount = opts.slideCount + slideCount;
-
         slides.hide().appendTo('body').each(function(i) { // appendTo fixes #56
             var count = 0;
             var slide = $(this);
@@ -1135,7 +1134,7 @@ $(document).on( 'cycle-bootstrap', function( e, opts ) {
                 else {
                     $(this).load(function() {
                         imageLoaded();
-                    }).error(function() {
+                    }).on("error", function() {
                         if ( --count === 0 ) {
                             // ignore this slide
                             opts.API.log('slide skipped; img not loaded:', this.src);
