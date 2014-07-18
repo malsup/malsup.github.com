@@ -36,6 +36,7 @@ $(document).on( 'cycle-bootstrap', function( e, opts ) {
             var slide = $(this);
             var images = slide.is('img') ? slide : slide.find('img');
             slide.data('index', i);
+            opts.API.trigger('cycle-slide-before', [opts, opts.API.buildSlideOpts( slide ), slide]);
             // allow some images to be marked as unimportant (and filter out images w/o src value)
             images = images.filter(':not(.cycle-loader-ignore)').filter(':not([src=""])');
             if ( ! images.length ) {

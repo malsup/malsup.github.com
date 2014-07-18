@@ -211,7 +211,7 @@ $.fn.cycle.API = {
         $( slides ).each(function(i) {
             var slideOpts;
             var slide = $(this);
-
+            
             if ( prepend )
                 opts.container.prepend( slide );
             else
@@ -219,7 +219,9 @@ $.fn.cycle.API = {
 
             opts.slideCount++;
             slideOpts = opts.API.buildSlideOpts( slide );
-
+            
+            opts.API.trigger('cycle-slide-before', [opts, slideOpts, slide]);
+            
             if ( prepend )
                 opts.slides = $( slide ).add( opts.slides );
             else
@@ -1139,6 +1141,7 @@ $(document).on( 'cycle-bootstrap', function( e, opts ) {
             var slide = $(this);
             var images = slide.is('img') ? slide : slide.find('img');
             slide.data('index', i);
+            opts.API.trigger('cycle-slide-before', [opts, opts.API.buildSlideOpts( slide ), slide]);
             // allow some images to be marked as unimportant (and filter out images w/o src value)
             images = images.filter(':not(.cycle-loader-ignore)').filter(':not([src=""])');
             if ( ! images.length ) {

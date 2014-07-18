@@ -213,6 +213,8 @@ $.fn.cycle.API = {
 
             opts.slideCount++;
             slideOpts = opts.API.buildSlideOpts( slide );
+            
+            opts.API.trigger('cycle-slide-before', [opts, slideOpts, slide]);
 
             if ( prepend )
                 opts.slides = $( slide ).add( opts.slides );
