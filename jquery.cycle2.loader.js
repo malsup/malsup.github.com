@@ -31,11 +31,12 @@ $(document).on( 'cycle-bootstrap', function( e, opts ) {
         if ( ! slideCount )
             return;
 
-        slides.css('visibility','hidden').appendTo('body').each(function(i) { // appendTo fixes #56
+        slides.css('visibility','hidden').appendTo(opts.container).each(function(i) { // appendTo fixes #56
             var count = 0;
             var slide = $(this);
             var images = slide.is('img') ? slide : slide.find('img');
             slide.data('index', i);
+            opts.API.trigger('cycle-slide-before', [opts, opts.API.buildSlideOpts( slide ), slide]);
             // allow some images to be marked as unimportant (and filter out images w/o src value)
             images = images.filter(':not(.cycle-loader-ignore)').filter(':not([src=""])');
             if ( ! images.length ) {
